@@ -1,0 +1,19 @@
+/*
+ * A259055  a(n) = 9*n^2 + 18*n + 7.
+ * https://oeis.org/A259055
+ *
+ * Offset:    0    (a(0) is the first term)
+ * Keywords:  nonn, easy
+ * Formula:   a(n) = 9*n^2 + 18*n + 7
+ * Range:     u8 n <= 4, u16 n <= 40, u32 n <= 40, u64 n <= 40, u128 n <= 40,
+ *            big any n
+ * Helpers:   none
+ *
+ * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
+ */
+
+seq_t a(idx_t n)
+{
+    seq_t N = (seq_t)n;
+    return 9 * N * N + 18 * N + 7;
+}

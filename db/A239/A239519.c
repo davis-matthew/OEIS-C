@@ -1,0 +1,38 @@
+/*
+ * A239519  a(n) = n + (n-1)*(n-2) + (n-3)*(n-4)*(n-5) +
+ *          (n-6)*(n-7)*(n-8)*(n-9) + ... + ...*1.
+ * https://oeis.org/A239519
+ *
+ * Offset:    0    (a(0) is the first term)
+ * Keywords:  nonn
+ * Formula:   a(n) = n + (n-1)(n-2) + (n-3)(n-4)(n-5) + ... ; Groups are
+ *            blocks of consecutive decreasing numbers of increasing size
+ *            1,2,3,4,..., and the sum of the products of each block is a(n)
+ * Range:     u8 n <= 9, u16 n <= 20, u32 n <= 37, u64 n <= 37, u128 n <= 37,
+ *            big any n
+ * Helpers:   none
+ *
+ * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
+ */
+
+seq_t a(idx_t n)
+{
+    if (n == 0) return (seq_t)0;
+
+    seq_t sum = 0;
+    idx_t cur = n;      /* current number to multiply */
+    idx_t group = 1;    /* current group size */
+
+    while (cur > 0) {
+        seq_t prod = 1;
+        idx_t i = 0;
+        while (i < group && cur > 0) {
+            prod *= (seq_t)cur;
+            cur--;
+            i++;
+        }
+        sum += prod;
+        group++;
+    }
+    return sum;
+}
