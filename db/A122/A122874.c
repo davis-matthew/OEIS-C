@@ -1,0 +1,24 @@
+/*
+ * A122874  List of pairs n+7, 13-n, n >= 0.
+ * https://oeis.org/A122874
+ *
+ * Offset:    0    (a(0) is the first term)
+ * Keywords:  sign, tabf, easy
+ * Formula:   a(n) = (n even) ? (n/2 + 7) : (13 - n/2)
+ * Range:     i8 n <= 241, i16 n <= 1000, i32 n <= 1000, i64 n <= 1000,
+ *            i128 n <= 1000, big any n
+ * Helpers:   none
+ *
+ * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
+ */
+
+seq_t a(idx_t n)
+{
+    /* Use integer division by 2 via shift */
+    seq_t half = (seq_t)(n >> 1);
+
+    if ((n & 1) == 0)          /* n is even   */
+        return half + 7;
+    else                        /* n is odd    */
+        return 13 - half;
+}
