@@ -1,0 +1,25 @@
+/*
+ * A010801  13th powers: a(n) = n^13.
+ * https://oeis.org/A010801
+ *
+ * Offset:    0    (a(0) is the first term)
+ * Keywords:  nonn, easy, mult
+ * Formula:   a(n) = n^13
+ * Range:     u8 n <= 1, u16 n <= 2, u32 n <= 5, u64 n <= 30, u128 n <= 920,
+ *            big any n
+ * Helpers:   none
+ *
+ * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
+ */
+
+#include <stdint.h>
+
+seq_t a(idx_t n)
+{
+    seq_t x = (seq_t)n;
+    seq_t res = 1;
+    /* multiply 13 times to compute n^13 */
+    for (int i = 0; i < 13; ++i)
+        res *= x;
+    return res;
+}

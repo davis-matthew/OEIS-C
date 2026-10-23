@@ -1,0 +1,34 @@
+/*
+ * A015928  Inverse of 1919th cyclotomic polynomial.
+ * https://oeis.org/A015928
+ *
+ * Offset:    0    (a(0) is the first term)
+ * Keywords:  sign, easy
+ * Formula:   not stated
+ * Range:     i8 n <= 2000, i16 n <= 2000, i32 n <= 2000, i64 n <= 2000,
+ *            i128 n <= 2000, big any n
+ * Helpers:   none
+ *
+ * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
+ */
+
+/* Inverse of the 1919‑th cyclotomic polynomial.
+   a(n) = 1  for n mod 1919 in [0,18]
+   a(n) = -1 for n mod 1919 in [101,119]
+   a(n) = 0  otherwise                         */
+seq_t a(idx_t n)
+{
+    /* period length 1919 */
+    const idx_t period = 1919ULL;
+    idx_t m = n % period;
+
+    if (m < 19) {
+        return (seq_t)1;
+    } else if (m <= 100) {
+        return (seq_t)0;
+    } else if (m <= 119) {
+        return (seq_t)-1;
+    } else {
+        return (seq_t)0;
+    }
+}

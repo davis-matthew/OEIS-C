@@ -1,0 +1,35 @@
+/*
+ * A040375  Continued fraction for sqrt(395).
+ * https://oeis.org/A040375
+ *
+ * Offset:    0    (a(0) is the first term)
+ * Keywords:  nonn, cofr, easy, mult
+ * Formula:   a(n) = 19 if n = 0; otherwise multiplicative with * a(2) = 6,
+ *            a(2^e) = 38 for e ≥ 2, a(p^e) = 1 for odd prime p
+ * Range:     u8 n <= 83, u16 n <= 83, u32 n <= 83, u64 n <= 83, u128 n <= 83,
+ *            big any n
+ * Helpers:   none
+ *
+ * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
+ */
+
+seq_t a(idx_t n)
+{
+    if (n == 0)
+        return (seq_t)19;
+
+    /* Count the exponent of 2 in n (i.e., trailing zero bits). */
+    idx_t e = 0;
+    idx_t tmp = n;
+    while ((tmp & 1u) == 0) {
+        tmp >>= 1;
+        e++;
+        if (e >= 2) break;   /* we only need to distinguish 0, 1, ≥2 */
+    }
+
+    if (e == 0)
+        return (seq_t)1;
+    if (e == 1)
+        return (seq_t)6;
+    return (seq_t)38;
+}

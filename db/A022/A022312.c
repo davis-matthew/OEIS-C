@@ -1,0 +1,27 @@
+/*
+ * A022312  a(n) = a(n-1) + a(n-2) + 1 for n>1, a(0)=0, a(1)=7.
+ * https://oeis.org/A022312
+ *
+ * Offset:    0    (a(0) is the first term)
+ * Keywords:  nonn, easy
+ * Formula:   not stated
+ * Range:     u8 n <= 8, u16 n <= 20, u32 n <= 43, u64 n <= 89, u128 n <= 181,
+ *            big any n
+ * Helpers:   none
+ *
+ * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
+ */
+
+/* a(n) = a(n-1) + a(n-2) + 1   with  a(0) = 0, a(1) = 7   (OEIS A022312) */
+seq_t a(idx_t n) {
+    if (n == 0) return (seq_t)0;
+    if (n == 1) return (seq_t)7;
+    seq_t prev2 = (seq_t)0;
+    seq_t prev1 = (seq_t)7;
+    for (idx_t i = 2; i <= n; ++i) {
+        seq_t cur = prev1 + prev2 + 1;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
